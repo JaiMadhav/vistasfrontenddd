@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Search, Filter, Star, ShoppingCart } from 'lucide-react'
+import { Search, Filter, ShoppingCart, MapPin, Package } from 'lucide-react'
 import { states } from '../data/states'
 import { handicrafts, getHandicraftsByState, getHandicraftsByCategory } from '../data/handicrafts'
 import { StickyScroll } from '../components/ui/sticky-scroll-reveal'
@@ -13,6 +13,32 @@ const Handicrafts = () => {
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [priceRange, setPriceRange] = useState('all')
   const [searchTerm, setSearchTerm] = useState('')
+  const [cart, setCart] = useState([])
+
+  // Add to cart function
+  const addToCart = (item) => {
+    const existingItem = cart.find(cartItem => cartItem.id === item.id)
+    if (existingItem) {
+      setCart(cart.map(cartItem => 
+        cartItem.id === item.id 
+          ? { ...cartItem, quantity: cartItem.quantity + 1 }
+          : cartItem
+      ))
+    } else {
+      setCart([...cart, { ...item, quantity: 1 }])
+    }
+    // Update localStorage for navbar cart count
+    const newCart = existingItem 
+      ? cart.map(cartItem => 
+          cartItem.id === item.id 
+            ? { ...cartItem, quantity: cartItem.quantity + 1 }
+            : cartItem
+        )
+      : [...cart, { ...item, quantity: 1 }]
+    localStorage.setItem('cart', JSON.stringify(newCart))
+    // Dispatch custom event to update navbar cart count
+    window.dispatchEvent(new CustomEvent('cartUpdated'))
+  }
 
   const categories = [
     { id: 'all', name: 'All Categories' },
@@ -75,35 +101,55 @@ const Handicrafts = () => {
   // Prepare content for Sticky Scroll
   const stickyContent = filteredHandicrafts.map(item => ({
     title: item.name,
-    description: item.description,
+    description: `${item.village}, ${item.state} • ${item.category} • ₹${item.price.toLocaleString()}`,
     content: (
-      <div className="h-full w-full bg-white rounded-lg overflow-hidden relative">
+      <div className="h-full w-full bg-white rounded-lg overflow-hidden relative group">
         <img
           src={item.image}
           alt={item.name}
           className="w-full h-full object-cover"
+          onError={(e) => {
+            e.target.src = '/Images/landscape-bg.jpg'
+          }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+        
+        {/* Village Badge */}
         <div className="absolute top-4 left-4">
-          <span className="bg-white/90 text-gray-800 px-2 py-1 rounded-full text-xs font-montserrat font-semibold">
+          <span className="bg-white/90 text-gray-800 px-3 py-1 rounded-full text-sm font-mukta font-semibold">
             {item.village}
           </span>
         </div>
-        <div className="absolute bottom-4 left-4 text-white">
-          <h3 className="text-xl font-pacifico font-semibold">{item.name}</h3>
-          <p className="text-sm opacity-90 font-montserrat">{item.category}</p>
-          <div className="flex items-center gap-2 mt-2">
-            <div className="flex items-center gap-1">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={`w-3 h-3 ${i < Math.floor(item.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
-                />
-              ))}
-              <span className="text-xs opacity-90 font-montserrat">({item.reviews})</span>
+        
+        {/* Category Badge */}
+        <div className="absolute top-4 right-4">
+          <span className="bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-mukta">
+            {item.category}
+          </span>
+        </div>
+        
+        {/* Bottom Content */}
+        <div className="absolute bottom-4 left-4 right-4 text-white">
+          <h3 className="text-2xl font-pacifico font-semibold mb-2">{item.name}</h3>
+          <p className="text-sm opacity-90 font-source-serif mb-3 line-clamp-2">
+            {item.description}
+          </p>
+          
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <MapPin className="w-4 h-4" />
+              <span className="text-sm font-mukta">{item.state}</span>
             </div>
-            <span className="text-lg font-bold font-montserrat">₹{item.price.toLocaleString()}</span>
+            <span className="text-xl font-bold font-mukta">₹{item.price.toLocaleString()}</span>
           </div>
+          
+          {/* Add to Cart Button */}
+          <button
+            onClick={() => addToCart(item)}
+            className="w-full mt-4 bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold py-3 px-4 rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg font-mukta"
+          >
+            Add to Cart
+          </button>
         </div>
       </div>
     )
@@ -130,20 +176,22 @@ const Handicrafts = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-white"
+            className="text-white text-center"
           >
-            <h1 className="text-5xl font-bold mb-4">Handicraft Marketplace</h1>
-            <p className="text-xl mb-6 max-w-2xl">
-              Discover authentic handcrafted treasures from India's villages
+            <h1 className="text-6xl md:text-8xl font-pacifico mb-6 drop-shadow-lg">
+              Handicrafts
+            </h1>
+            <p className="text-2xl md:text-3xl mb-8 max-w-4xl mx-auto font-source-serif drop-shadow-md leading-relaxed">
+              Discover authentic handcrafted treasures from India's villages - each piece tells a story of tradition and craftsmanship
             </p>
-            <div className="flex items-center gap-6 text-lg">
+            <div className="flex items-center justify-center gap-8 text-lg">
               <div className="flex items-center gap-2">
-                <ShoppingCart className="w-5 h-5" />
-                <span>{handicrafts.length} Items</span>
+                <Package className="w-6 h-6" />
+                <span className="font-mukta">{handicrafts.length} Unique Items</span>
               </div>
               <div className="flex items-center gap-2">
-                <Star className="w-5 h-5" />
-                <span>4.8/5 Rating</span>
+                <MapPin className="w-6 h-6" />
+                <span className="font-mukta">25 Villages</span>
               </div>
             </div>
           </motion.div>
@@ -151,12 +199,26 @@ const Handicrafts = () => {
       </section>
 
       {/* Filters Section */}
-      <section className="py-12 bg-white border-b">
+      <section className="py-16 bg-gradient-to-br from-gray-50 to-blue-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-4xl md:text-5xl font-pacifico text-gray-800 mb-4">
+              Find Your Perfect Craft
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto font-source-serif">
+              Filter through our collection of authentic handicrafts from villages across India
+            </p>
+          </motion.div>
+          
+          <div className="flex flex-col lg:flex-row gap-8 items-center justify-between bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/20">
             <div className="flex items-center gap-4">
-              <Filter className="w-5 h-5 text-gray-600" />
-              <span className="font-montserrat font-semibold text-gray-800">Filter by:</span>
+              <Filter className="w-6 h-6 text-blue-600" />
+              <span className="font-mukta font-semibold text-gray-800 text-lg">Filter by:</span>
             </div>
             
             <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
@@ -205,8 +267,8 @@ const Handicrafts = () => {
         </div>
       </section>
 
-      {/* Handicrafts Sticky Scroll */}
-      <section className="py-20 bg-gradient-to-br from-yellow-50 via-orange-50 to-red-50">
+      {/* Handicrafts Display */}
+      <section className="py-20 bg-gradient-to-br from-amber-50 via-orange-50 to-red-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -217,8 +279,8 @@ const Handicrafts = () => {
             <h2 className="text-4xl md:text-5xl font-pacifico text-gray-800 mb-6">
               {filteredHandicrafts.length} Handicrafts Found
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto font-montserrat">
-              Each piece is handcrafted by local artisans using traditional techniques
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto font-source-serif">
+              Each piece is handcrafted by local artisans using traditional techniques passed down through generations
             </p>
           </motion.div>
 
@@ -253,17 +315,19 @@ const Handicrafts = () => {
       </section>
 
       {/* Why Choose Section */}
-      <section className="section-padding bg-white">
-        <div className="container-custom">
+      <section className="py-20 bg-gradient-to-br from-blue-50 to-indigo-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-center mb-12"
+            className="text-center mb-16"
           >
-            <h2 className="text-3xl font-bold text-charcoal mb-4">Why Choose Our Handicrafts?</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Each piece tells a story of tradition, craftsmanship, and cultural heritage
+            <h2 className="text-4xl md:text-5xl font-pacifico text-gray-800 mb-6">
+              Why Choose Our Handicrafts?
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto font-source-serif">
+              Each piece tells a story of tradition, craftsmanship, and cultural heritage passed down through generations
             </p>
           </motion.div>
 
@@ -290,11 +354,17 @@ const Handicrafts = () => {
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: index * 0.1 }}
-                className="text-center"
+                className="group text-center p-8 bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-gray-200"
               >
-                <div className="text-4xl mb-4">{feature.icon}</div>
-                <h3 className="text-xl font-semibold text-charcoal mb-2">{feature.title}</h3>
-                <p className="text-gray-600">{feature.description}</p>
+                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center text-3xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  {feature.icon}
+                </div>
+                <h3 className="text-2xl font-pacifico font-semibold text-gray-800 mb-4 group-hover:text-orange-600 transition-colors">
+                  {feature.title}
+                </h3>
+                <p className="text-gray-600 font-source-serif leading-relaxed">
+                  {feature.description}
+                </p>
               </motion.div>
             ))}
           </div>
@@ -302,24 +372,30 @@ const Handicrafts = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="section-padding bg-gradient-to-r from-emerald-600 to-teal-600">
-        <div className="container-custom text-center">
+      <section className="py-20 bg-gradient-to-r from-orange-500 via-red-500 to-pink-600">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className="text-3xl font-bold text-white mb-4">
+            <h2 className="text-4xl md:text-5xl font-pacifico text-white mb-6 drop-shadow-lg">
               Support Local Artisans
             </h2>
-            <p className="text-white/90 mb-8 max-w-2xl mx-auto">
-              Every purchase helps preserve traditional crafts and supports village communities
+            <p className="text-xl text-white/90 mb-8 max-w-3xl mx-auto font-source-serif drop-shadow-md">
+              Every purchase helps preserve traditional crafts and supports village communities across India
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/checkout" className="btn-secondary">
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
+              <Link 
+                to="/checkout" 
+                className="bg-white text-orange-600 font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 font-mukta"
+              >
                 View Cart
               </Link>
-              <Link to="/contact" className="btn-outline text-white border-white hover:bg-white hover:text-deep-green">
+              <Link 
+                to="/contact" 
+                className="border-2 border-white text-white font-semibold px-8 py-4 rounded-xl hover:bg-white hover:text-orange-600 transition-all duration-300 transform hover:-translate-y-1 font-mukta"
+              >
                 Contact Us
               </Link>
             </div>

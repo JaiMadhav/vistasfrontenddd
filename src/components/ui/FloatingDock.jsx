@@ -5,31 +5,12 @@ import { FiHome, FiMapPin, FiUsers, FiShoppingBag, FiPackage, FiCalendar, FiUser
 import { cn } from '../../utils/cn';
 
 const FloatingDock = () => {
-  const [isVisible, setIsVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
   const location = useLocation();
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      
-      if (currentScrollY < lastScrollY || currentScrollY < 100) {
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
-      }
-      
-      setLastScrollY(currentScrollY);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
 
   const navItems = [
     { name: 'Home', path: '/', icon: FiHome },
     { name: 'States', path: '/states', icon: FiMapPin },
-    { name: 'Villages', path: '/villages', icon: FiUsers },
     { name: 'Handicrafts', path: '/handicrafts', icon: FiShoppingBag },
     { name: 'Packages', path: '/packages', icon: FiPackage },
     { name: 'Itinerary', path: '/itinerary', icon: FiCalendar },
@@ -49,15 +30,12 @@ const FloatingDock = () => {
   };
 
   return (
-    <AnimatePresence>
-      {isVisible && (
-        <motion.div
-          initial={{ y: 100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 100, opacity: 0 }}
-          transition={{ duration: 0.3, ease: 'easeOut' }}
-          className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50"
-        >
+    <motion.div
+      initial={{ y: 100, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
+      className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50"
+    >
           <div className="bg-white/80 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl px-4 py-3">
             <div className="flex items-center space-x-2">
               {/* Logo */}
@@ -123,9 +101,7 @@ const FloatingDock = () => {
               </div>
             </div>
           </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+    </motion.div>
   );
 };
 

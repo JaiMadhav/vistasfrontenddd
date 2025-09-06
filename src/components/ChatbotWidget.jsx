@@ -7,12 +7,13 @@ const ChatbotWidget = () => {
   const [messages, setMessages] = useState([
     {
       id: 1,
-      text: 'Hello! I\'m your Vistas travel assistant. How can I help you plan your village adventure?',
+      text: "Hello! I'm your Vistas travel assistant. How can I help you plan your village adventure?",
       sender: 'bot',
       timestamp: new Date()
     }
   ])
   const [inputValue, setInputValue] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const handleSend = async () => {
     if (!inputValue.trim()) return
@@ -26,17 +27,44 @@ const ChatbotWidget = () => {
 
     setMessages(prev => [...prev, userMessage])
     setInputValue('')
+    setLoading(true)
 
-    // Simulate bot response
-    setTimeout(() => {
+    try {
+      // 🔹 Call your backend which connects to Dialogflow
+      const res = await fetch('/api/chatbox', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: userMessage.text,
+          sessionId: 'web-user-123',
+          languageCode: 'en' // you can make this dynamic
+        })
+      })
+
+      const data = await res.json()
+
       const botMessage = {
         id: messages.length + 2,
-        text: 'Thank you for your message! Our team will get back to you soon with personalized recommendations.',
+        text: data.reply || "Sorry, I didn’t understand that.",
         sender: 'bot',
         timestamp: new Date()
       }
+
       setMessages(prev => [...prev, botMessage])
-    }, 1000)
+    } catch (error) {
+      console.error('Chatbot error:', error)
+      setMessages(prev => [
+        ...prev,
+        {
+          id: messages.length + 2,
+          text: '⚠️ Oops! Something went wrong. Please try again later.',
+          sender: 'bot',
+          timestamp: new Date()
+        }
+      ])
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleKeyPress = (e) => {
@@ -64,7 +92,7 @@ const ChatbotWidget = () => {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
-            className="fixed bottom-24 right-6 w-80 h-96 bg-white rounded-xl shadow-warm border border-gray-100 z-50 overflow-hidden"
+            className="fixed bottom-24 right-6 w-80 h-96 bg-white rounded-xl shadow-warm border border-gray-100 z-50 overflow-hidden flex flex-col"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-saffron to-terracotta text-white p-4">
@@ -75,7 +103,7 @@ const ChatbotWidget = () => {
                   </div>
                   <div>
                     <h3 className="font-pacifico font-semibold text-lg">Vistas Assistant</h3>
-                    <p className="text-sm opacity-90">Online</p>
+                    <p className="text-sm opacity-90">{loading ? 'Typing…' : 'Online'}</p>
                   </div>
                 </div>
                 <button
@@ -88,7 +116,7 @@ const ChatbotWidget = () => {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 p-4 overflow-y-auto h-64">
+            <div className="flex-1 p-4 overflow-y-auto">
               <div className="space-y-3">
                 {messages.map((message) => (
                   <div
@@ -126,6 +154,7 @@ const ChatbotWidget = () => {
                 <button
                   onClick={handleSend}
                   className="px-3 py-2 bg-gradient-to-r from-saffron to-terracotta text-white rounded-lg hover:shadow-warm transition-all"
+                  disabled={loading}
                 >
                   <FiSend className="w-4 h-4" />
                 </button>

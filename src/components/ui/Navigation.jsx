@@ -6,21 +6,12 @@ import { cn } from '../../utils/cn';
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const navItems = [
     { name: 'Home', path: '/' },
     { name: 'States', path: '/states' },
-    { name: 'Villages', path: '/villages' },
     { name: 'Handicrafts', path: '/handicrafts' },
     { name: 'Packages', path: '/packages' },
     { name: 'Itinerary', path: '/itinerary' },
@@ -35,12 +26,7 @@ const Navigation = () => {
 
   return (
     <motion.nav
-      className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-        isScrolled 
-          ? "bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-lg" 
-          : "bg-transparent"
-      )}
+      className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-lg"
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5 }}

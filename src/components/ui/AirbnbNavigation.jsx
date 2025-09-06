@@ -1,38 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiMenu, FiUser } from 'react-icons/fi';
+import { FiMenu, FiUser, FiShoppingCart } from 'react-icons/fi';
 
 const AirbnbNavigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
   const location = useLocation();
 
-  // Effect to handle scroll event - trigger at 30px with throttling
+  // Update cart count from localStorage
   useEffect(() => {
-    let ticking = false;
-    
-    const handleScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          const isScrolled = window.scrollY > 30;
-          setScrolled(isScrolled);
-          ticking = false;
-        });
-        ticking = true;
-      }
+    const updateCartCount = () => {
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+      setCartCount(totalItems);
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    updateCartCount();
+    // Listen for storage changes
+    window.addEventListener('storage', updateCartCount);
+    // Custom event for same-tab updates
+    window.addEventListener('cartUpdated', updateCartCount);
+
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('storage', updateCartCount);
+      window.removeEventListener('cartUpdated', updateCartCount);
     };
   }, []);
 
   const navItems = [
     { name: "States", link: "/states" },
-    { name: "Villages", link: "/villages" },
     { name: "Handicrafts", link: "/handicrafts" },
     { name: "Packages", link: "/packages" },
   ];
@@ -45,11 +43,7 @@ const AirbnbNavigation = () => {
   ];
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-200 ${
-      scrolled
-        ? 'bg-white/50 backdrop-blur-[10px] border-b border-gray-200/30'
-        : 'bg-transparent border-b border-transparent'
-    }`}>
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/50 backdrop-blur-[10px] border-b border-gray-200/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -61,9 +55,7 @@ const AirbnbNavigation = () => {
                 className="w-full h-full object-cover"
               />
             </div>
-            <span className={`text-xl font-pacifico transition-colors duration-200 ${
-              scrolled ? 'text-gray-800' : 'text-white drop-shadow-lg'
-            }`}>Vistas</span>
+            <span className="text-xl font-pacifico text-gray-800">Vistas</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -74,12 +66,8 @@ const AirbnbNavigation = () => {
                 to={item.link}
                 className={`text-base font-mukta transition-colors duration-200 ${
                   location.pathname === item.link
-                    ? scrolled 
-                      ? 'text-blue-600 font-semibold'
-                      : 'text-blue-300 font-semibold drop-shadow-lg'
-                    : scrolled
-                      ? 'text-gray-700 hover:text-blue-600'
-                      : 'text-white hover:text-blue-300 drop-shadow-lg'
+                    ? 'text-blue-600 font-semibold'
+                    : 'text-gray-700 hover:text-blue-600'
                 }`}
               >
                 {item.name}
@@ -90,22 +78,27 @@ const AirbnbNavigation = () => {
           {/* Right Side Actions */}
           <div className="flex items-center space-x-4">
 
+            {/* Cart Button */}
+            <Link
+              to="/checkout"
+              className="relative flex items-center space-x-2 px-3 py-2 rounded-full border border-gray-300 hover:shadow-md transition-colors duration-200"
+            >
+              <FiShoppingCart className="w-4 h-4 text-gray-700" />
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+
             {/* User Menu */}
             <div className="relative">
               <button
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                className={`flex items-center space-x-2 px-3 py-2 rounded-full transition-colors duration-200 ${
-                  scrolled
-                    ? 'border border-gray-300 hover:shadow-md'
-                    : 'border border-white/30 hover:bg-white/10'
-                }`}
+                className="flex items-center space-x-2 px-3 py-2 rounded-full border border-gray-300 hover:shadow-md transition-colors duration-200"
               >
-                <FiMenu className={`w-4 h-4 transition-colors duration-200 ${
-                  scrolled ? 'text-gray-700' : 'text-white drop-shadow-lg'
-                }`} />
-                <FiUser className={`w-4 h-4 transition-colors duration-200 ${
-                  scrolled ? 'text-gray-700' : 'text-white drop-shadow-lg'
-                }`} />
+                <FiMenu className="w-4 h-4 text-gray-700" />
+                <FiUser className="w-4 h-4 text-gray-700" />
               </button>
 
               <AnimatePresence>
@@ -114,7 +107,7 @@ const AirbnbNavigation = () => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
-                    className="absolute right-0 mt-2 w-48 bg-white/95 rounded-lg shadow-lg border border-gray-200 py-2 z-50 scrollbar-hide"
+                    className="absolute right-0 mt-2 w-48 bg-white/95 rounded-lg shadow-lg border border-gray-200 py-2 z-50 scrollbar-hide overflow-hidden"
                   >
                     {userMenuItems.map((item) => (
                       <Link
@@ -134,13 +127,9 @@ const AirbnbNavigation = () => {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className={`lg:hidden p-2 rounded-full transition-colors duration-200 ${
-                scrolled ? 'hover:bg-gray-100' : 'hover:bg-white/10'
-              }`}
+              className="lg:hidden p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
             >
-              <FiMenu className={`w-5 h-5 transition-colors duration-200 ${
-                scrolled ? 'text-gray-700' : 'text-white drop-shadow-lg'
-              }`} />
+              <FiMenu className="w-5 h-5 text-gray-700" />
             </button>
           </div>
         </div>
@@ -152,11 +141,7 @@ const AirbnbNavigation = () => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className={`lg:hidden py-4 transition-colors duration-200 scrollbar-hide ${
-                scrolled
-                  ? 'bg-white/95 border-t border-gray-200'
-                  : 'bg-black/20 border-t border-white/20'
-              }`}
+              className="lg:hidden py-4 bg-white/95 border-t border-gray-200 scrollbar-hide overflow-hidden"
             >
               <div className="space-y-4">
                 {/* Mobile Navigation Links */}
@@ -167,12 +152,8 @@ const AirbnbNavigation = () => {
                       to={item.link}
                       className={`block py-2 text-lg font-mukta transition-colors duration-200 ${
                         location.pathname === item.link
-                          ? scrolled
-                            ? 'text-blue-600 font-semibold'
-                            : 'text-blue-300 font-semibold drop-shadow-lg'
-                          : scrolled
-                            ? 'text-gray-700 hover:text-blue-600'
-                            : 'text-white hover:text-blue-300 drop-shadow-lg'
+                          ? 'text-blue-600 font-semibold'
+                          : 'text-gray-700 hover:text-blue-600'
                       }`}
                       onClick={() => setIsMenuOpen(false)}
                     >
@@ -182,18 +163,12 @@ const AirbnbNavigation = () => {
                 </div>
 
                 {/* Mobile User Actions */}
-                <div className={`px-4 pt-4 space-y-2 transition-colors duration-200 ${
-                  scrolled ? 'border-t border-gray-200' : 'border-t border-white/20'
-                }`}>
+                <div className="px-4 pt-4 space-y-2 border-t border-gray-200">
                   {userMenuItems.map((item) => (
                     <Link
                       key={item.name}
                       to={item.link}
-                      className={`block py-2 text-lg font-mukta transition-colors duration-200 ${
-                        scrolled
-                          ? 'text-gray-700 hover:text-blue-600'
-                          : 'text-white hover:text-blue-300 drop-shadow-lg'
-                      }`}
+                      className="block py-2 text-lg font-mukta text-gray-700 hover:text-blue-600 transition-colors duration-200"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       {item.name}

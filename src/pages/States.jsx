@@ -15,10 +15,8 @@ const States = () => {
 
   return (
     <div className="page-transition">
-      {/* Hero Section */}
-      <section className="relative py-20 md:py-28 bg-cover bg-center bg-no-repeat min-h-[50vh] pt-32 md:pt-40" style={{backgroundImage: 'url(/Images/landscape-bg.jpg)'}}>
-        {/* Fallback background color in case image doesn't load */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600"></div>
+      {/* <section className="relative py-20 md:py-28 bg-cover bg-center bg-no-repeat min-h-[50vh] pt-32 md:pt-40 bg-black" >
+        <div className="absolute inset-0 bg-gradient-to-br from-black/20 "></div>
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/40"></div>
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col justify-center min-h-[50vh]">
           <motion.h1 
@@ -38,9 +36,9 @@ const States = () => {
             Discover the rich cultural heritage and authentic village experiences across 5 diverse states of India
           </motion.p>
         </div>
-      </section>
+      </section> */}
 
-      {/* States Focus Cards */}
+     
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -64,7 +62,7 @@ const States = () => {
                   Discover Our States
                 </h2>
                 <p className="text-xl text-white/90 max-w-3xl mx-auto font-source-serif drop-shadow-md">
-                  Hover over any state to focus on it and explore its unique culture
+                  Discover the rich cultural heritage and authentic village experiences across  diverse states of India
                 </p>
               </div>
             </div>

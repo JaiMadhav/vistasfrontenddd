@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Search, Filter, Star, Calendar, MapPin, Users, Clock } from 'lucide-react'
+import { Search, Filter, Calendar, MapPin, Users, Clock } from 'lucide-react'
 import { states } from '../data/states'
 import { packages, getPackagesByState, getPackagesByDuration } from '../data/packages'
 
@@ -83,10 +83,6 @@ const Packages = () => {
               <div className="flex items-center gap-2">
                 <Calendar className="w-5 h-5" />
                 <span>{packages.length} Packages</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Star className="w-5 h-5" />
-                <span>4.8/5 Rating</span>
               </div>
             </div>
           </motion.div>
@@ -251,15 +247,6 @@ const Packages = () => {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`w-4 h-4 ${i < Math.floor(pkg.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
-                          />
-                        ))}
-                        <span className="text-sm text-gray-500 ml-1">({pkg.reviews})</span>
-                      </div>
                       <span className="text-xl font-bold text-saffron">₹{pkg.price.toLocaleString()}</span>
                     </div>
 

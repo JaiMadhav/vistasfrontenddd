@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Calendar, MapPin, Users, Clock, Eye, Download, Star } from 'lucide-react'
+import { Calendar, MapPin, Users, Clock, Eye, Download } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 const Bookings = () => {
@@ -241,19 +241,6 @@ const Bookings = () => {
                           </div>
                         </div>
 
-                        {booking.rating && (
-                          <div className="flex items-center gap-2 mb-4">
-                            <div className="flex items-center gap-1">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`w-4 h-4 ${i < Math.floor(booking.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
-                                />
-                              ))}
-                            </div>
-                            <span className="text-sm text-gray-600">({booking.rating})</span>
-                          </div>
-                        )}
                       </div>
 
                       <div className="lg:text-right">
@@ -280,11 +267,6 @@ const Bookings = () => {
                             </button>
                           )}
                           
-                          {booking.status === 'completed' && (
-                            <button className="btn-secondary text-sm">
-                              Write Review
-                            </button>
-                          )}
                         </div>
                       </div>
                     </div>

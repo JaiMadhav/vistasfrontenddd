@@ -15,7 +15,6 @@ const Footer = () => {
       { name: 'Assam', path: '/states/assam' },
     ],
     experiences: [
-      { name: 'Village Tours', path: '/villages' },
       { name: 'Handicrafts', path: '/handicrafts' },
       { name: 'Cultural Packages', path: '/packages' },
       { name: 'Custom Itinerary', path: '/itinerary' },

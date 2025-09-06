@@ -11,7 +11,6 @@ import { useZoomResponsive } from './hooks/useZoomResponsive'
 const Home = lazy(() => import('./pages/Home'))
 const States = lazy(() => import('./pages/States'))
 const StateDetail = lazy(() => import('./pages/StateDetail'))
-const Villages = lazy(() => import('./pages/Villages'))
 const VillageDetail = lazy(() => import('./pages/VillageDetail'))
 const Handicrafts = lazy(() => import('./pages/Handicrafts'))
 const Packages = lazy(() => import('./pages/Packages'))
@@ -37,7 +36,6 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/states" element={<States />} />
             <Route path="/states/:id" element={<StateDetail />} />
-            <Route path="/villages" element={<Villages />} />
             <Route path="/villages/:id" element={<VillageDetail />} />
             <Route path="/handicrafts" element={<Handicrafts />} />
             <Route path="/packages" element={<Packages />} />

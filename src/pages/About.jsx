@@ -1,12 +1,11 @@
 import { motion } from 'framer-motion'
-import { Users, MapPin, Star, Heart, Award, Globe } from 'lucide-react'
+import { Users, MapPin, Heart, Award, Globe } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 const About = () => {
   const stats = [
     { icon: Users, number: "5000+", label: "Happy Travelers" },
     { icon: MapPin, number: "25", label: "Villages" },
-    { icon: Star, number: "4.8", label: "Average Rating" },
     { icon: Heart, number: "100%", label: "Authentic Experience" }
   ]
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { MapPin, Calendar, Clock, Users, Star, Heart } from 'lucide-react'
+import { MapPin, Calendar, Clock, Users, Heart } from 'lucide-react'
 import { getVillageById } from '../data/villages'
 import { states } from '../data/states'
 
@@ -39,7 +39,7 @@ const VillageDetail = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-charcoal mb-4">Village not found</h1>
-          <Link to="/villages" className="btn-primary">Back to Villages</Link>
+          <Link to="/states" className="btn-primary">Back to States</Link>
         </div>
       </div>
     )
@@ -78,10 +78,6 @@ const VillageDetail = () => {
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4" />
                 <span>{village.coordinates}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Star className="w-4 h-4" />
-                <span>4.8/5 Rating</span>
               </div>
             </div>
           </motion.div>
@@ -292,16 +288,7 @@ const VillageDetail = () => {
                   Handcrafted by local artisans using traditional techniques passed down through generations. 
                   Each piece tells a story of {village.name}'s rich cultural heritage.
                 </p>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`w-4 h-4 ${i < 4 ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
-                      />
-                    ))}
-                    <span className="text-sm text-gray-500 ml-1">4.9</span>
-                  </div>
+                <div className="flex items-center justify-end">
                   <Link to="/handicrafts" className="btn-primary">
                     Shop Now
                   </Link>

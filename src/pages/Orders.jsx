@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Package, Calendar, MapPin, Star, Eye, Download } from 'lucide-react'
+import { Package, Calendar, MapPin, Eye, Download } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 const Orders = () => {
@@ -268,11 +268,6 @@ const Orders = () => {
                         {order.status === 'shipped' && (
                           <button className="btn-primary text-sm">
                             Track Package
-                          </button>
-                        )}
-                        {order.status === 'delivered' && (
-                          <button className="btn-secondary text-sm">
-                            Write Review
                           </button>
                         )}
                       </div>
